@@ -39,7 +39,6 @@ body('brand',"must be 3 character").isLength({min:3}),
 body('title',"must be 5 character").isLength({min:5}),
 body('desc',"must be 5 character").isLength({min:5}),
 body('price',"must be 2 character").isLength({min:2}),
-
 ],async(req,res)=>{
     console.log(req.body)
 });
