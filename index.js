@@ -12,6 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended:false}));
 const admin=require("./routes/Admin")
 app.use('/api/admin',admin)
+app.use('/uploads', express.static('uploads'));
 
 
 app.listen(port, () => {

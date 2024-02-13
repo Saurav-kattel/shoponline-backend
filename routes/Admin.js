@@ -4,7 +4,18 @@ const admin = require("../modules/admin");
 const { body, validationResult } = require("express-validator");
 const multer = require("multer");
 
-const upload = multer({ dest: "./uploads" });
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+
+const upload = multer({ storage: storage })
 // route 1: upload to the database /api/admin/upload-data
 router.post(
   "/upload-data",
@@ -12,32 +23,53 @@ router.post(
   [
     body("name", "must be 5 character").isLength({ min: 3 }),
     body("type", "must be 5 character").isLength({ min: 3 }),
-    body("brand", "must be 3 character").isLength({ min: 3 }),
+    body("brand", "must be 2 character").isLength({ min: 2 }),
     body("desc", "must be 5 character").isLength({ min: 3 }),
     body("price", "must be 2 character").isLength({ min: 2 }),
   ],
   async (req, res) => {
     let errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    } else {
-      try {
-        console.log(req.body);
-        console.log("uploadinggggg");
-        console.log(req.file);
+    const { name, type, brand, desc, price } = req.body;
+    const  img = `${req.file.path}`
 
-        // if (req.file) {
-        //   return res.redirect("/");
-        // } else {
-        //   console.error("Error uploading image");
-        //   return res.status(500).json({ error: "Error uploading image" });
-        // }
-      } catch (error) {
-        console.error("Error in /upload-img route:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
+    try{
+      if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+      const formdata=new admin({
+        name,
+        type,
+        brand,
+        desc,
+        price,
+        img,
+      })
+      const savedfomdata=await formdata.save();
+      res.json(savedfomdata);
+      console.log(savedfomdata)
+    }catch(error){
+      console.error("Error in /upload-img route:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 );
+
+// route: 2 filter data of type http://localhost:5000/api/admin/filtered-data?type=Laptop
+router.get("/filtered-data", async (req, res) => {
+  try {
+    // Construct the filter object based on provided criteria
+    //   const filter = {};
+    //   if (name) filter.name = name;
+    //   if (age) filter.age = age;
+
+    // Query the database with the filter object
+    const filteredData = await admin.find({ type: req.query.type });
+
+    // Return the filtered data as JSON response
+    res.json(filteredData);
+  } catch (error) {
+    // Handle errors
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 module.exports = router;
