@@ -31,12 +31,11 @@ router.post(
     // validate if the req data is according to the rules set up
     let errors = validationResult(req);
     const { name, type, brand, desc, price } = req.body;
-    const  img = `${req.file.path}`
+    const img = `${req?.file?.path}`
 
     try{
-      // if error show error then create a new object in bakcned post the data to backend and save
       if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-      const formdata=new admin({
+      const formdata = new admin({
         name,
         type,
         brand,
@@ -44,10 +43,10 @@ router.post(
         price,
         img,
       })
-      const savedfomdata=await formdata.save();
+      const savedfomdata = await formdata.save();
       res.json(savedfomdata);
       console.log(savedfomdata)
-    }catch(error){
+    } catch (error) {
       console.error("Error in /upload-img route:", error);
       return res.status(500).json({ error: "Internal Server Error" });
     }
@@ -72,6 +71,27 @@ router.get("/filtered-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+// FOR TO GET LAPTOP BY ID
+router.get("/laptop/:id", async (req, res) => {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.status(404).json({ message: "Internal server error" })
+    }
+
+    const findLaptopById = await admin.findById(id);
+
+    if (!findLaptopById) {
+      res.status(403).json({ message: "Laptop not found" })
+    }
+
+    res.status(200).json({ findLaptopById })
+  } catch (error) {
+    res.status(500).json({ message: `Internal server error ${error}` })
+  }
+})
 
 // route 3. get data by id
 router.get("/laptop/:id", async (req, res) => {
