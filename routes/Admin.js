@@ -4,8 +4,8 @@ const admin = require("../modules/admin");
 const { body, validationResult } = require("express-validator");
 const multer = require("multer");
 
-
-
+// multer is used to store images in folder using destination where you want to 
+// store and can choose the filename and other properties
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads')
@@ -28,11 +28,13 @@ router.post(
     body("price", "must be 2 character").isLength({ min: 2 }),
   ],
   async (req, res) => {
+    // validate if the req data is according to the rules set up
     let errors = validationResult(req);
     const { name, type, brand, desc, price } = req.body;
     const  img = `${req.file.path}`
 
     try{
+      // if error show error then create a new object in bakcned post the data to backend and save
       if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
       const formdata=new admin({
         name,
@@ -71,5 +73,24 @@ router.get("/filtered-data", async (req, res) => {
   }
 });
 
+// route 3. get data by id
+router.get("/laptop/:id", async (req, res) => {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.status(404).json({ message: "id parameter is missing" })
+    }
+
+    const findLaptopById = await admin.findById(id);
+
+    if (!findLaptopById) {
+      res.status(403).json({ message: "Laptop not found" })
+    }
+
+    res.json(findLaptopById);
+  } catch (error) {
+    res.status(500).json({ message: `Internal server error ${error}` })
+  }
+})
 
 module.exports = router;
