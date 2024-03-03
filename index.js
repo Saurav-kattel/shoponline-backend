@@ -21,6 +21,9 @@ app.use('/api/admin',admin)
 // without needing to write specific routes for each file. It's a convenient way to handle serving
 //  static content in your web application.
 app.use('/uploads', express.static('uploads'));
+// for user login and signup
+const user=require("./routes/auth")
+app.use('/auth',user)
 
 
 app.listen(port, () => {
