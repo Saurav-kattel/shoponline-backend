@@ -63,7 +63,6 @@ router.post(
 );
 
 
-
 // route 2 autheticate a  user using login endpoint
 router.post(
   "/login",
