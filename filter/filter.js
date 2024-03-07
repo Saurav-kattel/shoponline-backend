@@ -8,10 +8,6 @@ router.get("/filtered-data", async (req, res) => {
     // Retrieve filtering criteria from query parameters
     const { type } = req.query;
 
-    // Construct the filter object based on provided criteria
-    //   const filter = {};
-    //   if (name) filter.name = name;
-    //   if (age) filter.age = age;
 
     // Query the database with the filter object
     const filteredData = await admin.find({ type: type });
